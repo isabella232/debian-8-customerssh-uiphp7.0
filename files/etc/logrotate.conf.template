@@ -1,0 +1,8 @@
+compress
+
+<CRON_LOG> {
+	rotate 5
+	size=100k
+	notifempty
+	copytruncate
+}

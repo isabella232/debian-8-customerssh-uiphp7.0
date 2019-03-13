@@ -1,0 +1,48 @@
+#!/bin/bash
+
+export mUID=`id -u`
+export mGID=65534
+
+for gr in `id -G`; do
+  [ "${gr}" -eq "0" ] && echo "skipping group ${gr}" && continue
+  getent group ${gr} >/dev/null 2>&1
+  if [ "$?" != "0" ]; then
+    export mGID=$gr
+    if ! grep ^ssh-group /etc/group >/dev/null 2>&1; then
+      echo "ssh-group:x:${gr}:" >> /etc/group
+    fi
+  fi
+done
+
+if ! grep ^ssh-user /etc/passwd >/dev/null 2>&1; then
+  sed -e "/^${mUID}:.*/d" /etc/passwd > /tmp/new_passwd
+  cat /tmp/new_passwd > /etc/passwd
+  rm -f /tmp/new_passwd
+  if [ -z $HOME ]; then
+    echo "ssh-user:x:${mUID}:${mGID}::/var/www:/bin/bash" >> /etc/passwd
+  else
+    echo "ssh-user:x:${mUID}:${mGID}::${HOME}:/bin/bash" >> /etc/passwd
+  fi
+
+fi
+
+[ -z $HOME ] && exit 0
+if [ ! -f "${HOME}/.bashrc" ]; then
+  cat << 'EOF' > ${HOME}/.bashrc
+  export PATH="/var/www/._venv/bin:/usr/local/composer/vendor/bin:/usr/local/composer/vendor/drush/drush:$PATH:/var/www/._gems/bin"
+  export PS1="[\u:\[\e[36m\]\w\[\e[m\]]$ "
+  export TERM=xterm-256color
+  export GEM_HOME=/var/www/._gems
+
+  alias grep='grep --color'                     # show differences in colour
+  alias egrep='egrep --color=auto'              # show differences in colour
+  alias fgrep='fgrep --color=auto'              # show differences in colour
+
+  # Some shortcuts for different directory listings
+  alias ls='ls -hF --color=auto'                 # classify files in colour
+  alias dir='ls --color=auto --format=long'     # windows listing
+  alias ll='ls -l'                              # long list
+  alias la='ls -A'                              # all but . and ..
+  alias l='ls -CF'                              #
+EOF
+fi

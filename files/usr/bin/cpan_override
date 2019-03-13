@@ -1,0 +1,7 @@
+#!/bin/bash
+
+echo "## The cpan command has been disabled ##
+
+To install cpan modules, list them in /var/www/cpan/modules.conf
+
+The modules will be installed automatically on the next reboot."

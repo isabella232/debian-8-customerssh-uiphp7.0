@@ -22,10 +22,6 @@ RUN \
 	apt-get install -y \
 		mysql-client sqlite sqlite3 git vim traceroute telnet nano dnsutils \
 		curl iputils-ping openssh-client openssh-sftp-server wget redis-tools && \
-	echo "PostgreSQL" && \
-  		wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - && \
-		apt-get update && \
-		apt-get install -y postgresql-client-10 && \
 	echo "Dependencies" && \
 		apt-get install -y \
 			libmysqlclient-dev zlib1g-dev libsqlite3-dev gnupg build-essential  \
